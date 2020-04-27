@@ -32,58 +32,6 @@ export default (containerElement, options) => {
     var _width = offsetWidth;
     var _height = offsetHeight;
     
-    //console.log("orig", _width, _height)
-
-    const mrbean = new Image(40, 40);
-    mrbean.src = "/mrbean.jpg";
-
-    const taroaso = new Image(40, 40);
-    taroaso.src = "/aso.jpg";
-
-    const shinzoabe = new Image(40, 40);
-    shinzoabe.src = "/shinzo.jpg";
-
-    const koike = new Image(40, 40);
-    koike.src = "/koike.jpg";
-
-    const suzuki = new Image(40, 40);
-    suzuki.src = "/suzuki.jpg";
-
-    const trump = new Image(40, 40);
-    trump.src = "/trump.jpg";
-
-    const boris = new Image(40, 40);
-    boris.src = "/boris.jpg";
-    
-    const xijinping = new Image(40, 40);
-    xijinping.src = "/xijinping.jpg";
-
-    const akimoto = new Image(40, 40);
-    akimoto.src = "/akimoto.jpg";
-    const facemask = new Image(40, 40);
-    facemask.src = "/facemask.jpg";
-    const hundredkyen = new Image(40, 40);
-    hundredkyen.src = "/hundredkyen.jpg";
-    const ubereats = new Image(40, 40);
-    ubereats.src = "/ubereats.jpg";
-    const who = new Image(40, 40);
-    who.src = "/who.jpg";
-    const osamu = new Image(40, 40);
-    osamu.src = "/osamu.jpg";
-    const osaka = new Image(40, 40);
-    osaka.src = "/osaka.jpg";
-    const taro = new Image(40, 40);
-    taro.src = "/taro.jpg";
-    const donald = new Image(40, 40);
-    donald.src = "/donald.jpg";
-    const kimjong = new Image(40, 40);
-    kimjong.src = "/kimjong.jpg";
-    const toiletpaper = new Image(40, 40);
-    toiletpaper.src = "/toiletpaper.jpg";
-
-    //const birds = new Image();
-    //birds.src = "/bird-cells-new.svg";
-
     const image_files = [];
     image_files.push('_akimoto.png');
     image_files.push('_boris.png');
@@ -106,33 +54,19 @@ export default (containerElement, options) => {
     image_files.push('_toiletpaper.png');
     image_files.push('_facemask.png');
     image_files.push('_hundredyen.png');
-
-    //image_files.set('ubereats', '_ubereats.png');
-    //image_files.set('toiletpaper', '_toiletpaper.png');
-    //image_files.set('facemask', '_facemask.png');
-    //image_files.set('hundredyen', '_hundredyen.png');
-    //image_files.set('mrbean', '_mrbean.png');
     
     const image_objects = [];
     for (var i = 0; i < image_files.length; i++) {
         image_objects[i] = new Image(40, 40);
-        image_objects[i].onload = function() {
-            //console.log("load", this.src.lastIndexOf)
-        }
         image_objects[i].src = "./" + image_files[i];
     }
-    //console.log("length", image_objects.length)
-
+    
     const image_player = new Image(40, 40);
     image_player.src = "./_mrbean.png";
 
     const canvas = document.createElement('canvas');
     canvas.width = _width;
     canvas.height = _height;
-
-    canvas.addEventListener('mousedown', _handleDown, false);
-    canvas.addEventListener('mousemove', _handleMove, false);
-    canvas.addEventListener('mouseup', _handleUp, false);
     containerElement.appendChild(canvas)
 
     const context = canvas.getContext("2d");
@@ -157,20 +91,6 @@ export default (containerElement, options) => {
         context.clearRect(0, 0, canvas.width, canvas.height);
     }
     
-    function _drawGuide() {
-        if(ismobile && orientation === 0) {
-            context.fillStyle = "#CCAAAA";
-            context.fillRect(0, 0, 40, _height);
-            context.fillStyle = "#AAAADD";
-            context.fillRect(_width - 40, 0, _width, _height);
-        } else {
-            context.fillStyle = "#CCAAAA";
-            context.fillRect(0, 0, _width, 40);
-            context.fillStyle = "#AAAADD";
-            context.fillRect(0, _height - 40, _width, _height);
-        }
-    }
-
     function _update() {
         var x, height, gap, minHeight, maxHeight, minGap, maxGap;
         
@@ -239,9 +159,9 @@ export default (containerElement, options) => {
                     obstacles[i].delete = true;
 
                 } else {
-                    //console.log("return", obstacles[i].caseType)
                     return;
                 }
+
                 //return;
             } 
         }
@@ -249,10 +169,8 @@ export default (containerElement, options) => {
         _clear();
         frameNo += 1;
 
-        // draw borders
-        _drawGuide();
+        //_drawGuide();
 
-        //if (frameNo === 1 || everyInterval(150)) {
         if (frameNo === 1 || everyInterval(200)) {
             
             if(ismobile && orientation === 0) {
@@ -314,12 +232,6 @@ export default (containerElement, options) => {
                 }
             }
 
-            //obstacles.push(new MyComponent(10, height, "green", x, 0));
-            //obstacles.push(new MyComponent(10, x - height - gap, "green", x, height + gap));
-            
-            //obstacles.push(new MyComponent(10, height, "green", x, 0));
-            //obstacles.push(new MyComponent(10, x - height - gap, "green", x, height + gap));
-            
         }
 
         obstacles = obstacles.filter(item => {
@@ -337,32 +249,7 @@ export default (containerElement, options) => {
 
         player.newPos();
         player.update();
-
-        /*
-        document.addEventListener('keydown', function(event){
-            if(Keys.Up(event.keyCode)) {
-                //console.log("UP");
-                //player.speedY = -1;
-                player.speedY = -1;
-
-            } else if(Keys.Down(event.keyCode)){
-                //console.log("DOWN");
-                player.speedY = 1;
-
-            } else if(Keys.Left(event.keyCode)) {
-                //console.log("LEFT");
-
-            } else if(Keys.Right(event.keyCode)){
-                //console.log("RIGHT");
-
-            }
-        })
-        document.addEventListener('keyup', function(event){
-            console.log("up")
-            player.speedX = 0;
-            player.speedY = 0;
-        })*/
-
+        
     }
     
     function everyInterval(n) {
@@ -383,12 +270,6 @@ export default (containerElement, options) => {
         this.gravitySpeed = 0;
 
 
-        //1-3 normal
-        //5-6 asymptomatic
-        //6-7 symptomatic
-        //8 mask: health
-        //9 100k: score
-        //10-12 delivery i.e. bento, dry grocery, fresh grocery: points
         this.elemType = (type === "player")?0:Lib.getRandomInt(1,20);
         this.caseType = (type === "player"|| this.elemType > 16)?0:Lib.getRandomInt(1,3);
         
@@ -396,13 +277,6 @@ export default (containerElement, options) => {
         this.bias = 10;
         this.radius = 0;
 
-        /*
-        this.chance = Lib.getRandomInt(0,3);
-        if(this.chance === 3 && type !== "player") {
-            color = "magenta";
-        } else if(this.chance === 2 && type !== "player") {
-            color = "cyan";
-        }*/
 
         if(this.elemType === 1) color = "magenta";
 
@@ -449,15 +323,7 @@ export default (containerElement, options) => {
                 }
 
             } else if (this.type === "playerx") {
-                //ctx.font = this.width + " " + this.height;
-                //ctx.fillStyle = color;
-                //ctx.fillText(this.text, this.x, this.y);
-                
-                //const sx = 300;
-                //const px = sx*this.index;
-                //ctx.drawImage(birds, px, 0, sx, 42, this.x, this.y, 20, 20)
-                //this.index = (this.index + 1)%10
-
+                //
             } else {
                 ///////////////////////////////////
                 var _color = color;
@@ -469,10 +335,6 @@ export default (containerElement, options) => {
                 if(this.elemType === 1) {
                     _color = color;
                 }
-
-                //ctx.fillStyle = _color;
-                //ctx.fillRect(this.x, this.y, this.width, this.height);
-                /////////////////////////////////////
 
                 var rad = 0;
                 if(this.direction > 0) {
@@ -510,10 +372,6 @@ export default (containerElement, options) => {
                 ctx.drawImage(imeji,0,0);
                 ctx.restore();
                 
-                //var linecolor = (this.elemType === 1)?"#ff1a75":"#ffd11a";
-                //linecolor = (this.elemType === 3)?"#4dff4d":linecolor;
-                //linecolor = (this.elemType === 4)?"#944dff":linecolor;
-
                 var linecolor = "#79ff4d";
                 if(this.caseType === 1) linecolor = "#7ec0ee"; //"#1affff";
                 if(this.caseType === 2) linecolor = "#ffd11a";
@@ -532,31 +390,6 @@ export default (containerElement, options) => {
                 if(this.angle === 0) {
                     this.direction = (this.direction > 0)?0:1;
                 }
-
-                //////////////////////////////////////
-                //ctx.drawImage(mrbean, this.x, this.y)
-                
-                /*
-                var rad = 0;
-                if(this.direction > 0) {
-                    rad = 90 - (10*this.angle)
-                } else {
-                    rad = -90 + (10*this.angle);
-                }
-                rad = rad * Math.PI/180;
-                
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(rad);
-                ctx.translate(-15,-15);
-                ctx.drawImage(mrbean,0,0);
-                ctx.restore();
-
-                this.angle = (this.angle + 1)%18;
-                if(this.angle === 0) {
-                    this.direction = (this.direction > 0)?0:1;
-                }
-                */
 
             }
         }
@@ -636,66 +469,9 @@ export default (containerElement, options) => {
             return crash;
         }
     }
-
-    /*
-    var event = new CustomEvent(
-        "gameEvent", 
-        {
-            detail: {
-                name: `HELLO FROM GAME`,
-            },
-            bubbles: true,
-            cancelable: true
-        }
-    );
-    containerElement.dispatchEvent(event);
-    */
     
-    var _start = false;
-    var _prevx = 0;
-    var _prevy = 0;
-    function _handleDown(e) {
-        //console.log('down', e.button, e.clientX, e.clientY)
-        _start = true;
-        _prevx = e.clientX;
-        _prevy = e.clientY;
-    }
-    function _handleMove(e) {
-        //console.log('move', e.button, e.clientX, e.clientY)
-        if(!_start) return;
-        const dx = e.clientX - _prevx;
-        const dy = e.clientY - _prevy;
-        
-        /*
-        if(Math.abs(dx) > Math.abs(dy)) {
-            //player.speedX = (dx < 0)?0:1;
-            //player.speedY = dx;
-        } else if(Math.abs(dx) < Math.abs(dy)) {
-            //player.speedY = (dy < 0)?-1:1;
-            player.speedY = dy;
-        }*/
-        
-        player.speedY = dy;
-
-        _prevx = e.clientX;
-        _prevy = e.clientY;
-    }
-
-    function _handleUp(e) {
-        //console.log('up', e.button, e.clientX, e.clientY)
-        _start = false;
-        //player.speedX = 0;
-        //player.speedY = 0;
-        setTimeout(()=>{
-            player.speedX = 0;
-            player.speedY = 0;
-        }, 100)
-    }
-
     function resize(width, height, _orientation) {
-        //console.log("resize", width, height)
-
-        // pause game
+        
         clearInterval(timer)
 
         const _prev_orientation = orientation;
@@ -707,9 +483,7 @@ export default (containerElement, options) => {
         var new_x = player.x * width / prev_width;
         var new_y = player.y * height / prev_height;
 
-        console.log("AAA")
         if(_prev_orientation !== orientation) {
-            console.log("BBB", orientation, ismobile)
             if(ismobile && orientation === 0) {
                 new_x = ((width - 20)/2);
                 new_y = height - 200;
@@ -735,10 +509,10 @@ export default (containerElement, options) => {
         canvas.width = _width;
         canvas.height = _height;
         
-        // restart
         timer = setInterval(() => {
             _update()
         }, 20)
+
     }
 
     function destroy() {
@@ -769,7 +543,6 @@ export default (containerElement, options) => {
     }
     
     var flagAccel = false;
-    var timAccel;
     function accelerate(n) {
         if(flagAccel) return;
         flagAccel = true;

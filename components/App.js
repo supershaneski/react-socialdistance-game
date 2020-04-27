@@ -65,12 +65,12 @@ export default class App extends React.Component {
     constructor(props) {
 
         super(props)
-        
         //this.gameContainer = React.createRef();
         
         this.state = {
             health: 300,
             score: 0,
+            gameOver: false,
         }
 
         this.prevx = 0;
@@ -93,14 +93,11 @@ export default class App extends React.Component {
         this.orientation = (typeof window.orientation === "undefined")?0:window.orientation;
         
         this.gameContainer.addEventListener("gameEvent", function(event){
-            console.log('event', event.detail)
             
             if(event.detail.name === "onCrash") {
                 const payload = event.detail.payload;
-                const position  = event.detail.position;
+                //const position  = event.detail.position;
                 
-                //console.log("payload", payload, position);
-
                 let health = that.state.health;
                 let score = that.state.score;
                 
@@ -108,12 +105,11 @@ export default class App extends React.Component {
                 score += payload.score;
                 if(health > 300) health = 300;
                 if(health < 0) health = 0;
-
-                //console.log(":health", health, ":score", score);
-
+                
                 that.setState({
                     health: health,
                     score: score,
+                    gameOver: (health === 0)?true:false,
                 })
                 
                 if(health === 0) {
@@ -125,49 +121,34 @@ export default class App extends React.Component {
 
         this.result = GameLoader(this.gameContainer, 
             { mobile: this.isMobile, orientation: this.orientation});
-        //console.log(this.result)
         
         window.onorientationchange = function(e) {
             that.orientation = (typeof window.orientation === "undefined")?0:window.orientation;
-            
             console.log("orientation change", that.orientation)
-
         }
 
         window.addEventListener('resize',function(){
             
-            //console.log("offset", that.gameContainer.offsetHeight)
-
-            //const width = that.gameContainer.offsetWidth; //window.innerWidth;
-            //const height = that.gameContainer.offsetHeight; //window.innerHeight;
-
             console.log("window resize", that.orientation)
 
             const width = window.innerWidth;
             const height = window.innerHeight;
             that.result.resize(width, height, that.orientation)
+            
         }, false)
         
         document.addEventListener('keydown', function(event){
             if(Keys.Up(event.keyCode)) {
-                //console.log("UP");
-                //that.result.moveY(-1)
                 that.result.accelerate(-0.1)
             } else if(Keys.Down(event.keyCode)){
-                //console.log("DOWN");
-                //that.result.moveY(1)
                 that.result.accelerate(0.1)
             } else if(Keys.Left(event.keyCode)) {
-                //console.log("LEFT");
-
+                //
             } else if(Keys.Right(event.keyCode)){
-                //console.log("RIGHT");
+                //
             }
         })
         document.addEventListener('keyup', function(event){
-            //console.log("CLEAR")
-            //that.result.clearMove()
-            //that.result.accelerate(0.05)
             that.result.deccelerate()
         })
 
@@ -179,7 +160,7 @@ export default class App extends React.Component {
 
     handleDrag(down, x, y) {
         if(!this.down && down) {
-            console.log("START")
+            //console.log("START")
             this.down = down;
             this.prevx = x;
             this.prevy = y;
@@ -209,7 +190,7 @@ export default class App extends React.Component {
                     }
                 }
             } else {
-                console.log("END")
+                //console.log("END")
                 this.result.deccelerate()
             }
         }
@@ -224,6 +205,7 @@ export default class App extends React.Component {
         let classLife0 = "";
         let classLife1 = "";
         let classLife2 = "";
+
         switch(this.state.health) {
             case 300:
                 classLife0 = "redheart-icon";
@@ -263,6 +245,8 @@ export default class App extends React.Component {
                 classLife2 = "heart-icon";
         }
 
+
+
         return (
             <>
                 <div className="game-container" ref={el => this.gameContainer = el} />
@@ -275,7 +259,7 @@ export default class App extends React.Component {
                         </div>
                     </div>
                     <div className="title-head">
-                        <span>next-react-app</span>
+                        <span></span>
                     </div>
                     <div className="score-container">
                         <span className="label-score">{ score }</span>
@@ -287,8 +271,49 @@ export default class App extends React.Component {
                 {
                     this.isMobile && <GameController onDrag={this.handleDrag} />
                 }
+                {
+                    this.state.gameOver && 
+                    <div className="gameover-container">
+                        <h1>Game Over</h1>
+                    </div>
+                }
                 <style jsx>
                 {`
+                .gameover-container {
+                    background-color: transparent;
+                    position: absolute;
+                    left: 0px;
+                    top: 0px;
+                    width: 100vw;
+                    height: 100vh;
+                    z-index: 5;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .gameover-container h1{
+                    color: #000;
+                    animation-name: show-ani;
+                    animation-duration: 0.7s;
+                    animation-fill-mode: forwards;                    
+                }
+                .show-title {
+                    animation-name: show-ani;
+                    animation-duration: 0.7s;
+                    animation-fill-mode: forwards;
+                }
+                @keyframes show-ani {
+                    from { 
+                        transform: rotate(0deg) scale(2);
+                        opacity: 0.25;
+                    }
+                    to { 
+                        transform: rotate(720deg) scale(1);
+                        opacity: 1.0;
+                    }
+                }
+
                 .game-container {
                     /*background-color: #dedede;*/
                     background-color: white;
@@ -327,6 +352,7 @@ export default class App extends React.Component {
                 }
                 .title-head {
                     padding: 10px 0px;
+                    text-align: center;
                 }
                 .life-container, .score-container {
                     display: flex;
@@ -337,9 +363,11 @@ export default class App extends React.Component {
                     font-size: 1.2em;
                 }
                 .label-score {
-                    font-size: 1.2em;
-                    font-weight: 600;
+                    font-size: 1.0em;
+                    font-weight: 400;
+                    user-select: none;
                 }
+                /*
                 .redheart-icon::before {
                     content: '❤';
                     color: crimson;
@@ -351,7 +379,7 @@ export default class App extends React.Component {
                 .heart-icon::before {
                     content: '❤';
                     color: #bebebe;
-                }
+                }*/
                 /*
                 .score-container {
                     position: absolute;

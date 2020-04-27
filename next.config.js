@@ -14,6 +14,5 @@ module.exports = {
       return {
         '/': { page: '/' }
       };
-    },
-    distDir: 'build',
+    }
 }

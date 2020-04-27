@@ -9,3 +9,15 @@ body {
     margin: 0px;
     padding: 0px;
 }
+.redheart-icon::before {
+  content: '\2764';
+  color: crimson;
+}
+.orangeheart-icon::before {
+  content: '\2764';
+  color: pink;
+}
+.heart-icon::before {
+  content: '\2764';
+  color: #bebebe;
+}
