@@ -1,7 +1,7 @@
 import React from 'react';
 import GameLoader from './GameLoader';
 import Header from './Header';
-import { useDrag } from 'react-use-gesture';
+//import { useDrag } from 'react-use-gesture';
 
 const Keys = {
     Up: (code) => {
@@ -29,20 +29,24 @@ function displayScore(n) {
 
 function GameController({ onDrag }) {
     
+    /*
     const bind = useDrag(({ down, movement: [mx, my] }) => {
         const x = down ? mx : 0;
         const y = down ? my : 0;
         onDrag(down, x, y);
     })
+    */
 
     const handleDrag = (e) => {
         e.preventDefault();
         console.log("handle drag")
     }
 
+    //<div {...bind()} onDragOver={event => handleDrag(event)} className="game-controller"></div>
+    
     return (
         <>
-        <div {...bind()} onDragOver={event => handleDrag(event)} className="game-controller"></div>
+        <div className="game-controller"></div>
         <style jsx>
         {`
         .game-controller {
@@ -196,6 +200,11 @@ export default class App extends React.Component {
         }
     }
 
+    checkGame() {
+        const score = this.state.score;
+        const health = this.state.health;
+    }
+
     render() {
         //ザ・ソーシャル・ディスタンス・ザ・ゲーム
         //<Header text="Social-Distance-Game" />
@@ -244,41 +253,46 @@ export default class App extends React.Component {
                 classLife1 = "heart-icon";
                 classLife2 = "heart-icon";
         }
-
-
-
+        
         return (
             <>
-                <div className="game-container" ref={el => this.gameContainer = el} />
-                <div className="topnav">
-                    <div className="life-container">
-                        <div className="life-label">
-                            <span className={classLife2}></span>
-                            <span className={classLife1}></span>
-                            <span className={classLife0}></span>
+                <div className="root">
+                    <div className="game-container" ref={el => this.gameContainer = el} />
+                    <div className="topnav">
+                        <div className="life-container">
+                            <div className="life-label">
+                                <span className={classLife2}></span>
+                                <span className={classLife1}></span>
+                                <span className={classLife0}></span>
+                            </div>
+                        </div>
+                        <div className="title-head">
+                            <span></span>
+                        </div>
+                        <div className="score-container">
+                            <span className="label-score">{ score }</span>
                         </div>
                     </div>
-                    <div className="title-head">
-                        <span></span>
-                    </div>
-                    <div className="score-container">
-                        <span className="label-score">{ score }</span>
+                    <div className="footer">
+                        <span>&copy; 2020</span>
                     </div>
                 </div>
-                <div className="footer">
-                    <span>&copy; 2020</span>
-                </div>
-                {
-                    this.isMobile && <GameController onDrag={this.handleDrag} />
-                }
                 {
                     this.state.gameOver && 
-                    <div className="gameover-container">
-                        <h1>Game Over</h1>
-                    </div>
+                        <div className="gameover-container">
+                            <h1>Game Over</h1>
+                        </div>
                 }
                 <style jsx>
                 {`
+                .root {
+                    position: absolute;
+                    left: 0px;
+                    top: 0px;
+                    width: 100vw;
+                    height: 100vh;
+                    overflow: hidden;
+                }
                 .gameover-container {
                     background-color: transparent;
                     position: absolute;
@@ -294,9 +308,11 @@ export default class App extends React.Component {
                 }
                 .gameover-container h1{
                     color: #000;
+                    /*text-shadow: 0px 0px 3px #444;*/
                     animation-name: show-ani;
                     animation-duration: 0.7s;
-                    animation-fill-mode: forwards;                    
+                    animation-fill-mode: forwards;
+                    user-select: none; 
                 }
                 .show-title {
                     animation-name: show-ani;
@@ -332,8 +348,9 @@ export default class App extends React.Component {
                     width: 100vw;
                     z-index: 2;
                     display: grid;
-                    grid-template-columns: minmax(80px,15%) auto minmax(80px,15%);
+                    grid-template-columns: minmax(120px,15%) auto minmax(120px,15%);
                     grid-gap: 5px;
+                    overflow: hidden;
                 }
                 .footer {
                     position: absolute;
@@ -341,6 +358,7 @@ export default class App extends React.Component {
                     bottom: 0px;
                     z-index: 2;
                     padding: 5px 10px;;
+                    display: none;
                 }
                 .footer span {
                     font-size: 0.7em;
@@ -367,6 +385,11 @@ export default class App extends React.Component {
                     font-weight: 400;
                     user-select: none;
                 }
+                /*
+                .label-score::before {
+                    content: 'Score: ';
+                    font-weight: 600;
+                }*/
                 /*
                 .redheart-icon::before {
                     content: '❤';

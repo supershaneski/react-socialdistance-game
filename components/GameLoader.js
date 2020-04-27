@@ -1,21 +1,6 @@
 import Lib from '../lib/utils';
 import { scaleLinear } from "d3-scale";
 
-const Keys = {
-    Up: (code) => {
-        return (code === 38 || code === 87)
-    },
-    Down: (code) => {
-        return (code === 40 || code === 83)
-    },
-    Left: (code) => {
-        return (code === 37 || code === 65)
-    },
-    Right: (code) => {
-        return (code === 39 || code === 68)
-    }
-}
-
 const colorScale = scaleLinear()
   .domain([1, 10])
   .range(["#dedede", "#00ff00"]);
@@ -23,10 +8,12 @@ const colorScale = scaleLinear()
 export default (containerElement, options) => {
     var obstacles = [];
     
+    var isGameOver = false;
+
     var ismobile = (options && options.hasOwnProperty('mobile'))?options.mobile:false;
     var orientation = (options && options.hasOwnProperty('orientation'))?options.orientation:0;
     
-    console.log("init", "ismobile=", ismobile, "orientation=", orientation)
+    //console.log("init", "ismobile=", ismobile, "orientation=", orientation)
 
     const { offsetWidth, offsetHeight } = containerElement;
     var _width = offsetWidth;
@@ -92,6 +79,9 @@ export default (containerElement, options) => {
     }
     
     function _update() {
+
+        //if(isGameOver) return;
+
         var x, height, gap, minHeight, maxHeight, minGap, maxGap;
         
         for (var i = 0; i < obstacles.length; i += 1) {
@@ -167,11 +157,9 @@ export default (containerElement, options) => {
         }
 
         _clear();
-        frameNo += 1;
-
-        //_drawGuide();
-
-        if (frameNo === 1 || everyInterval(200)) {
+        if(!isGameOver) frameNo += 1;
+        
+        if (!isGameOver && (frameNo === 1 || everyInterval(200))) {
             
             if(ismobile && orientation === 0) {
                 
@@ -198,6 +186,7 @@ export default (containerElement, options) => {
                     const max1 = gapOK[chance].max;
                     const x1 = Lib.getRandomInt(min1, max1);
                     const y1 = y0;
+                    
                     obstacles.push(new MyComponent(40, 40, "green", x1, y1));
                     
                 }
@@ -239,15 +228,18 @@ export default (containerElement, options) => {
         })
 
         for (var i = 0; i < obstacles.length; i += 1) {
-            if(ismobile && orientation === 0) {
-                obstacles[i].y += 1;
-            } else {
-                obstacles[i].x += -1;
+            if(!isGameOver){
+                const inc = obstacles[i].increment;
+                if(ismobile && orientation === 0) {
+                    obstacles[i].y += 1; //inc; //1;
+                } else {
+                    obstacles[i].x += -1; //-1*inc; //-1;
+                }
             }
             obstacles[i].update();
         }
 
-        player.newPos();
+        if(!isGameOver) player.newPos();
         player.update();
         
     }
@@ -268,7 +260,12 @@ export default (containerElement, options) => {
         this.y = y;
         this.gravity = 0;
         this.gravitySpeed = 0;
-
+        
+        this.increment = 1;
+        if(frameNo > 3000) {
+            const delta = Math.random();
+            this.increment+=delta;
+        }
 
         this.elemType = (type === "player")?0:Lib.getRandomInt(1,20);
         this.caseType = (type === "player"|| this.elemType > 16)?0:Lib.getRandomInt(1,3);
@@ -517,6 +514,7 @@ export default (containerElement, options) => {
 
     function destroy() {
         clearInterval(timer);
+        isGameOver = true;
     }
 
     function moveY(n) {
