@@ -307,6 +307,7 @@ export default class App extends React.Component {
                     overflow: hidden;
                 }
                 .gameover-container h1{
+                    font-size: 1.5em;
                     color: #000;
                     /*text-shadow: 0px 0px 3px #444;*/
                     animation-name: show-ani;
@@ -346,6 +347,7 @@ export default class App extends React.Component {
                     left: 0px;
                     top: 0px;
                     width: 100vw;
+                    height: 50px;
                     z-index: 2;
                     display: grid;
                     grid-template-columns: minmax(120px,15%) auto minmax(120px,15%);
@@ -369,7 +371,7 @@ export default class App extends React.Component {
                     background-color: transparent;
                 }
                 .title-head {
-                    padding: 10px 0px;
+                    padding: 20px 0px;
                     text-align: center;
                 }
                 .life-container, .score-container {
@@ -381,53 +383,10 @@ export default class App extends React.Component {
                     font-size: 1.2em;
                 }
                 .label-score {
-                    font-size: 1.0em;
-                    font-weight: 400;
+                    font-size: 1.2em;
+                    font-weight: 600;
                     user-select: none;
                 }
-                /*
-                .label-score::before {
-                    content: 'Score: ';
-                    font-weight: 600;
-                }*/
-                /*
-                .redheart-icon::before {
-                    content: '❤';
-                    color: crimson;
-                }
-                .orangeheart-icon::before {
-                    content: '❤';
-                    color: pink;
-                }
-                .heart-icon::before {
-                    content: '❤';
-                    color: #bebebe;
-                }*/
-                /*
-                .score-container {
-                    position: absolute;
-                    right: 0px;
-                    top: 0px;
-                    z-index: 2;
-                }
-                .life-container {
-                    position: absolute;
-                    left: 0px;
-                    top: 0px;
-                    z-index: 3;
-                }
-                .redheart-icon::before {
-                    content: '❤';
-                    color: crimson;
-                }
-                .heart-icon::before {
-                    content: '❤';
-                    color: #bebebe;
-                }*/
-                /*
-                .label::before {
-                    content: 'Score: ';
-                }*/
                 `}
                 </style>
             </>

@@ -200,15 +200,17 @@ export default (containerElement, options) => {
                 obstacles.push(new MyComponent(40, 40, "green", x0, y0));
                 
                 if(frameNo > 1000) {
-                    const gap1 = (y0 - 60) - minHeight;
-                    const gap2 = maxHeight - (y0 + 60);
-                    const gapOK = [];
+                    var gap1 = (y0 - 60) - minHeight;
+                    var gap2 = maxHeight - (y0 + 60);
+                    var gapOK = [];
+                    
                     if(gap1 > 0) {
                         gapOK.push({ min: minHeight, max: (minHeight + gap1)});
                     }
                     if(gap2 > 0) {
                         gapOK.push({ min: (maxHeight - gap2), max: maxHeight });
                     }
+
                     let chance = 0;
                     if(gapOK.length > 1) chance = Lib.getRandomInt(0, (gapOK.length - 1));
                     
@@ -262,10 +264,11 @@ export default (containerElement, options) => {
         this.gravitySpeed = 0;
         
         this.increment = 1;
+        /*
         if(frameNo > 3000) {
             const delta = Math.random();
             this.increment+=delta;
-        }
+        }*/
 
         this.elemType = (type === "player")?0:Lib.getRandomInt(1,20);
         this.caseType = (type === "player"|| this.elemType > 16)?0:Lib.getRandomInt(1,3);
