@@ -80,8 +80,15 @@ export default class App extends React.Component {
                 let health = that.state.health;
                 let score = that.state.score;
                 
-                health += payload.health;
+                if(health === 250 && payload.health === -100) {
+                    health = 200;
+                } else if(health === 150 && payload.health === -100) {
+                    health = 100;
+                } else {
+                    health += payload.health;
+                }                
                 score += payload.score;
+
                 if(health > 300) health = 300;
                 if(health < 0) health = 0;
                 
@@ -351,6 +358,7 @@ export default class App extends React.Component {
                     z-index: 1;
                 }
                 .topnav {
+                    background-color: transparent;
                     position: absolute;
                     left: 0px;
                     top: 0px;

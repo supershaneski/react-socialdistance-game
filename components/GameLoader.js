@@ -331,9 +331,40 @@ export default (containerElement, options) => {
         this.text = "";
         this.textCount = 0;
         
+        let chance = 0;
         this.elemType = (type === "player")?0:Lib.getRandomInt(1,20);
-        this.caseType = (type === "player"|| this.elemType > 16)?0:Lib.getRandomInt(1,3);
-        
+        if(type !== "player") {
+            chance = Lib.getRandomInt(1,10);
+            if(chance <= 7) { // people
+                this.elemType = Lib.getRandomInt(1,16);
+            } else {
+                chance = Lib.getRandomInt(1,10);
+                if(chance <= 3) {
+                    this.elemType = 17;
+                } else if(chance > 3 && chance <= 6) {
+                    this.elemType = 18;
+                } else if(chance > 6 && chance <= 9) {
+                    this.elemType = 19;
+                } else {
+                    this.elemType = 20;
+                }
+            }
+        }
+
+        this.caseType = 0;//(type === "player"|| this.elemType > 16)?0:Lib.getRandomInt(1,3);
+        if(type === "player"|| this.elemType > 16) {
+            this.caseType = 0;
+        } else {
+            chance = Lib.getRandomInt(1,10);
+            if(chance <= 4) {
+                this.caseType = 1;
+            } else if(chance > 4 && chance < 8) {
+                this.caseType = 2;
+            } else {
+                this.caseType = 3;
+            }
+        }
+
         this.delete = false;
         this.bias = 10;
         this.radius = 0;
@@ -386,8 +417,6 @@ export default (containerElement, options) => {
                     this.direction = (this.direction > 0)?0:1;
                 }
 
-            } else if (this.type === "playerx") {
-                //
             } else {
                 
                 var _color = color;
