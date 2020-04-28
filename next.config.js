@@ -7,7 +7,7 @@ module.exports = {
       return config
     },
     env: {
-        siteTitle: 'Next/React Sample App',
+        siteTitle: 'A Sample Next/React Game',
     },
     exportTrailingSlash: true,
     exportPathMap: function() {

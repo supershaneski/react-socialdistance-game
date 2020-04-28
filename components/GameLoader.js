@@ -5,16 +5,34 @@ const colorScale = scaleLinear()
   .domain([1, 10])
   .range(["#dedede", "#00ff00"]);
 
+function GameSound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.setAttribute("loop", "true");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+      this.sound.play();
+    }
+    this.stop = function(){
+      this.sound.pause();
+    }
+}
+
 export default (containerElement, options) => {
+    
+    var gameMusic = new GameSound('/c3aqua.mp3');
+    
     var obstacles = [];
     
     var isGameOver = false;
+    var isGameStarted = false;
 
     var ismobile = (options && options.hasOwnProperty('mobile'))?options.mobile:false;
     var orientation = (options && options.hasOwnProperty('orientation'))?options.orientation:0;
     
-    //console.log("init", "ismobile=", ismobile, "orientation=", orientation)
-
     const { offsetWidth, offsetHeight } = containerElement;
     var _width = offsetWidth;
     var _height = offsetHeight;
@@ -69,35 +87,61 @@ export default (containerElement, options) => {
     const player = new MyComponent(40, 40, "blue", cx, cy, "player");
     player.gravity = 0; //0.001; //0.05;
 
-    var frameNo = 0;
+    /*
+    var frameNo = 0;    
     var timer = setInterval(() => {
         _update()
     }, 20)
+    */
+
+   var frameNo = 0;
+   var timer = null;
+
+    function startGame() {
+
+        var event = new CustomEvent(
+            "gameEvent", 
+            {
+                detail: {
+                    name: `onStart`,
+                    payload: null,
+                },
+                bubbles: true,
+                cancelable: true
+            }
+        );
+        containerElement.dispatchEvent(event);
+        
+        gameMusic.play();
+
+        isGameStarted = true;
+        frameNo = 0;    
+        timer = setInterval(() => {
+            _update()
+        }, 20)
+    }
 
     function _clear() {
         context.clearRect(0, 0, canvas.width, canvas.height);
     }
     
     function _update() {
-
-        //if(isGameOver) return;
+        if(!isGameStarted) return;
 
         var x, height, gap, minHeight, maxHeight, minGap, maxGap;
         
         for (var i = 0; i < obstacles.length; i += 1) {
             if (!obstacles[i].delete && player.crashWith(obstacles[i])) {
                 
-                //if(obstacles[i].elemType === 2) {
                 if(obstacles[i].caseType === 0) {
-                    //const eltype = obstacles[i].elemType;
                     
                     if(obstacles[i].elemType > 16) {
 
                         var payload = {};
-                        if(obstacles[i].elemType === 17) payload = { score: 10, health: 0 }; //uber
-                        if(obstacles[i].elemType === 18) payload = { score: 20, health: 0 }; //toilet
-                        if(obstacles[i].elemType === 19) payload = { score: 0, health: 100 }; //face
-                        if(obstacles[i].elemType === 20) payload = { score: 100, health: 0 }; //100k
+                        if(obstacles[i].elemType === 17) payload = { score: 20, health: 0 }; //uber
+                        if(obstacles[i].elemType === 18) payload = { score: 50, health: 0 }; //toilet
+                        if(obstacles[i].elemType === 19) payload = { score: 0, health: 50 }; //face
+                        if(obstacles[i].elemType === 20) payload = { score: 1000, health: 0 }; //100k
                         
                         var event = new CustomEvent(
                             "gameEvent", 
@@ -121,9 +165,32 @@ export default (containerElement, options) => {
                     obstacles[i].delete = true;
 
                 } else if(obstacles[i].caseType === 1) {
-                    //obstacles[i].delete = true;
+                    
+                    var payload = {
+                        health: 0,
+                        score: 10,
+                    }
+
+                    var event = new CustomEvent(
+                        "gameEvent", 
+                        {
+                            detail: {
+                                name: `onCrash`,
+                                payload: payload,
+                                position: {
+                                    x: obstacles[i].x,
+                                    y: obstacles[i].y,
+                                }
+                            },
+                            bubbles: true,
+                            cancelable: true
+                        }
+                    );
+                    containerElement.dispatchEvent(event);
+                    
+                    obstacles[i].delete = true;
+                    
                 } else if(obstacles[i].caseType === 2 || obstacles[i].caseType === 3) {
-                    //obstacles[i].delete = true;
                     
                     var payload = {};
                     if(obstacles[i].caseType === 2) payload = { health: - 50, score: 0 }
@@ -231,11 +298,10 @@ export default (containerElement, options) => {
 
         for (var i = 0; i < obstacles.length; i += 1) {
             if(!isGameOver){
-                const inc = obstacles[i].increment;
                 if(ismobile && orientation === 0) {
-                    obstacles[i].y += 1; //inc; //1;
+                    obstacles[i].y += 1;
                 } else {
-                    obstacles[i].x += -1; //-1*inc; //-1;
+                    obstacles[i].x += -1;
                 }
             }
             obstacles[i].update();
@@ -262,22 +328,16 @@ export default (containerElement, options) => {
         this.y = y;
         this.gravity = 0;
         this.gravitySpeed = 0;
+        this.text = "";
+        this.textCount = 0;
         
-        this.increment = 1;
-        /*
-        if(frameNo > 3000) {
-            const delta = Math.random();
-            this.increment+=delta;
-        }*/
-
         this.elemType = (type === "player")?0:Lib.getRandomInt(1,20);
         this.caseType = (type === "player"|| this.elemType > 16)?0:Lib.getRandomInt(1,3);
         
         this.delete = false;
         this.bias = 10;
         this.radius = 0;
-
-
+        
         if(this.elemType === 1) color = "magenta";
 
         this.angle = Lib.getRandomInt(0, 4);
@@ -287,9 +347,14 @@ export default (containerElement, options) => {
         this.update = function() {
             var ctx = context;
             if (this.type === "text") {
+                
                 ctx.font = this.width + " " + this.height;
                 ctx.fillStyle = color;
                 ctx.fillText(this.text, this.x, this.y);
+                this.y+=this.textCount;
+                this.textCount++;
+                if(this.textCount > 9) this.delete = true;
+
             } else if (this.type === "player") {
 
                 var rad = 0;
@@ -304,7 +369,6 @@ export default (containerElement, options) => {
                 ctx.translate(this.x, this.y);
                 ctx.rotate(rad);
                 ctx.translate(-20,-20);
-                //ctx.drawImage(mrbean,0,0); //image_player
                 ctx.drawImage(image_player,0,0); //image_player
                 ctx.restore();
 
@@ -325,7 +389,7 @@ export default (containerElement, options) => {
             } else if (this.type === "playerx") {
                 //
             } else {
-                ///////////////////////////////////
+                
                 var _color = color;
                 if(this.delete){
                     this.bias-=1;
@@ -538,7 +602,7 @@ export default (containerElement, options) => {
     }
 
     function clearMove() {
-        console.log("gravity", player.gravitySpeed)
+        //console.log("gravity", player.gravitySpeed)
         player.speedX = 0;
         player.speedY = 0;
     }
@@ -546,6 +610,13 @@ export default (containerElement, options) => {
     var flagAccel = false;
     function accelerate(n) {
         if(flagAccel) return;
+        flagAccel = true;
+        flagDeccel = false;
+        player.gravity = n;
+    }
+
+    function accelerate2(n) {
+
         flagAccel = true;
         flagDeccel = false;
         player.gravity = n;
@@ -571,6 +642,8 @@ export default (containerElement, options) => {
         moveY,
         clearMove,
         accelerate,
+        accelerate2,
         deccelerate,
+        startGame,
     }
 }

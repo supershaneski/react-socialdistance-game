@@ -1,7 +1,7 @@
 import React from 'react';
 import GameLoader from './GameLoader';
 import Header from './Header';
-//import { useDrag } from 'react-use-gesture';
+import TouchPanel from './TouchPanel';
 
 const Keys = {
     Up: (code) => {
@@ -27,75 +27,50 @@ function displayScore(n) {
     return score;
 }
 
-function GameController({ onDrag }) {
-    
-    /*
-    const bind = useDrag(({ down, movement: [mx, my] }) => {
-        const x = down ? mx : 0;
-        const y = down ? my : 0;
-        onDrag(down, x, y);
-    })
-    */
-
-    const handleDrag = (e) => {
-        e.preventDefault();
-        console.log("handle drag")
-    }
-
-    //<div {...bind()} onDragOver={event => handleDrag(event)} className="game-controller"></div>
-    
-    return (
-        <>
-        <div className="game-controller"></div>
-        <style jsx>
-        {`
-        .game-controller {
-            background-color: rgba(255,255,255,0.85);
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100vw;
-            height: 100vh;
-            z-index: 3;
-        }
-        `}
-        </style>
-        </>
-    )
-}
-
 export default class App extends React.Component {
     
     constructor(props) {
 
         super(props)
-        //this.gameContainer = React.createRef();
         
         this.state = {
             health: 300,
             score: 0,
             gameOver: false,
+            gameStart: true,
+            isMobile: false,
+            orientation: 0,
         }
-
+        
         this.prevx = 0;
         this.prevy = 0;
         this.down = false;
-
+        
         this.handleDrag = this.handleDrag.bind(this)
+
+        this.handleDown = this.handleDown.bind(this)
+        this.handleUp = this.handleUp.bind(this)
+
+        this.setStartGame = this.setStartGame.bind(this)
+        
     }
 
     componentDidMount() {
         
         const that = this;
         
+        let isMobile;
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            this.isMobile = true;
+            isMobile = true;
         } else {
-            this.isMobile = false;
-        }
-        
-        this.orientation = (typeof window.orientation === "undefined")?0:window.orientation;
-        
+            isMobile = false;
+        }        
+        const orientation = (typeof window.orientation === "undefined")?0:window.orientation;
+        this.setState({
+            isMobile: isMobile,
+            orientation: orientation,
+        })
+
         this.gameContainer.addEventListener("gameEvent", function(event){
             
             if(event.detail.name === "onCrash") {
@@ -119,26 +94,29 @@ export default class App extends React.Component {
                 if(health === 0) {
                     that.result.destroy()
                 }
+            } else if(event.detail.name === "onStart"){
+                that.setState({
+                    gameStart: false,
+                })
             }
 
         })
 
         this.result = GameLoader(this.gameContainer, 
-            { mobile: this.isMobile, orientation: this.orientation});
+            { mobile: isMobile, orientation: orientation});
         
         window.onorientationchange = function(e) {
-            that.orientation = (typeof window.orientation === "undefined")?0:window.orientation;
-            console.log("orientation change", that.orientation)
+            const orientation = (typeof window.orientation === "undefined")?0:window.orientation;
+            that.setState({
+                orientation: orientation,
+            })
         }
 
         window.addEventListener('resize',function(){
-            
-            console.log("window resize", that.orientation)
-
+            const orientation = (typeof window.orientation === "undefined")?0:window.orientation;
             const width = window.innerWidth;
             const height = window.innerHeight;
-            that.result.resize(width, height, that.orientation)
-            
+            that.result.resize(width, height, orientation);
         }, false)
         
         document.addEventListener('keydown', function(event){
@@ -164,7 +142,6 @@ export default class App extends React.Component {
 
     handleDrag(down, x, y) {
         if(!this.down && down) {
-            //console.log("START")
             this.down = down;
             this.prevx = x;
             this.prevy = y;
@@ -178,15 +155,13 @@ export default class App extends React.Component {
             this.prevy = y;
 
             if(down) {
-                if(this.isMobile && this.orientation === 0) {
-                    console.log("DRAG1", dx, dy);
+                if(this.state.isMobile && this.state.orientation === 0) {
                     if(dx > 0) {
                         this.result.accelerate(0.1);
                     } else {
                         this.result.accelerate(-0.1);
                     }
                 } else {
-                    console.log("DRAG2", dx, dy);
                     if(dy > 0) {
                         this.result.accelerate(0.1);
                     } else {
@@ -194,21 +169,29 @@ export default class App extends React.Component {
                     }
                 }
             } else {
-                //console.log("END")
                 this.result.deccelerate()
             }
         }
     }
+    
+    handleDown(value) {
+        if(value > 0) {
+            this.result.accelerate2(0.1)
+        } else {
+            this.result.accelerate2(-0.1)
+        }
+    }
 
-    checkGame() {
-        const score = this.state.score;
-        const health = this.state.health;
+    handleUp() {
+        this.result.deccelerate()
+    }
+    
+    setStartGame() {
+        this.result.startGame();
     }
 
     render() {
-        //ザ・ソーシャル・ディスタンス・ザ・ゲーム
-        //<Header text="Social-Distance-Game" />
-
+        
         const score = displayScore(this.state.score);
 
         let classLife0 = "";
@@ -253,6 +236,8 @@ export default class App extends React.Component {
                 classLife1 = "heart-icon";
                 classLife2 = "heart-icon";
         }
+
+        const touchMode = (this.state.isMobile && this.state.orientation === 0)?0:1;
         
         return (
             <>
@@ -273,18 +258,47 @@ export default class App extends React.Component {
                             <span className="label-score">{ score }</span>
                         </div>
                     </div>
-                    <div className="footer">
-                        <span>&copy; 2020</span>
-                    </div>
+                    <TouchPanel mode={touchMode} 
+                        onDown={this.handleDown} 
+                        onUp={this.handleUp} />
                 </div>
                 {
-                    this.state.gameOver && 
+                    (this.state.gameStart || this.state.gameOver) && 
                         <div className="gameover-container">
-                            <h1>Game Over</h1>
+                            {
+                                this.state.gameOver &&
+                                <h1>Game Over</h1>
+                            }
+                            {
+                                this.state.gameStart &&
+                                <div className="start-panel">
+                                    <h2>Japan State Of Emergency Game</h2>
+                                    <button onClick={this.setStartGame} className="start-button">Start Game</button>
+                                </div>
+                            }
                         </div>
                 }
                 <style jsx>
                 {`
+                .start-panel {
+                    background-color: transparent;
+                    text-align: center;
+                    padding: 5px;
+                }
+                .start-panel h2 {
+                    user-select: none;
+                }
+                .start-button {
+                    background-color: #000;
+                    border: 2px solid crimson;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    color: #fff;
+                    outline: none;
+                }
+                .start-button:active {
+                    transform: translate(0, 1px);
+                }
                 .root {
                     position: absolute;
                     left: 0px;
@@ -309,16 +323,10 @@ export default class App extends React.Component {
                 .gameover-container h1{
                     font-size: 1.5em;
                     color: #000;
-                    /*text-shadow: 0px 0px 3px #444;*/
                     animation-name: show-ani;
                     animation-duration: 0.7s;
                     animation-fill-mode: forwards;
                     user-select: none; 
-                }
-                .show-title {
-                    animation-name: show-ani;
-                    animation-duration: 0.7s;
-                    animation-fill-mode: forwards;
                 }
                 @keyframes show-ani {
                     from { 
@@ -330,9 +338,7 @@ export default class App extends React.Component {
                         opacity: 1.0;
                     }
                 }
-
                 .game-container {
-                    /*background-color: #dedede;*/
                     background-color: white;
                     position: absolute;
                     left: 0px;
@@ -342,36 +348,22 @@ export default class App extends React.Component {
                     z-index: 1;
                 }
                 .topnav {
-                    /*background-color: lightpink;*/
                     position: absolute;
                     left: 0px;
                     top: 0px;
                     width: 100vw;
-                    height: 50px;
+                    /*height: 50px;*/
                     z-index: 2;
                     display: grid;
-                    grid-template-columns: minmax(120px,15%) auto minmax(120px,15%);
+                    grid-template-columns: minmax(100px,15%) auto minmax(100px,15%);
                     grid-gap: 5px;
                     overflow: hidden;
-                }
-                .footer {
-                    position: absolute;
-                    left: 0px;
-                    bottom: 0px;
-                    z-index: 2;
-                    padding: 5px 10px;;
-                    display: none;
-                }
-                .footer span {
-                    font-size: 0.7em;
-                    color: #444;
-                    display: none;
                 }
                 .score-container, .title-head, .life-container {
                     background-color: transparent;
                 }
                 .title-head {
-                    padding: 20px 0px;
+                    /*padding: 20px 0px;*/
                     text-align: center;
                 }
                 .life-container, .score-container {

@@ -4,10 +4,9 @@ react-socialgame
 This project was bootstrapped with [Next.JS](https://nextjs.org/).
 
 ## Description
-Todo: Write description
+A quick-and-dirty game I made about the State of Emergency in Japan.
 
 ![screenshot](docs/screenshot.png)
-
 
 ## Installation
 Clone repository and run
