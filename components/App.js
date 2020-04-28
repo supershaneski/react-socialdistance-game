@@ -238,7 +238,8 @@ export default class App extends React.Component {
         }
 
         const touchMode = (this.state.isMobile && this.state.orientation === 0)?0:1;
-        
+        const welcomeMessage = "Click Start to Play";
+
         return (
             <>
                 <div className="root">
@@ -281,11 +282,12 @@ export default class App extends React.Component {
                 <style jsx>
                 {`
                 .start-panel {
-                    background-color: transparent;
                     text-align: center;
                     padding: 5px;
                 }
                 .start-panel h2 {
+                    text-shadow: 1px 1px 3px #999;
+                    font-size: 1.6em;
                     user-select: none;
                 }
                 .start-button {
@@ -293,6 +295,7 @@ export default class App extends React.Component {
                     border: 2px solid crimson;
                     padding: 10px 20px;
                     border-radius: 6px;
+                    letter-spacing: 1px;
                     color: #fff;
                     outline: none;
                 }

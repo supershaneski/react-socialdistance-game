@@ -535,7 +535,8 @@ export default (containerElement, options) => {
     }
     
     function resize(width, height, _orientation) {
-        
+        if(!isGameStarted) return;
+
         clearInterval(timer)
 
         const _prev_orientation = orientation;
